@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>Generative Art Test</title>
+  </head>
+  <body>
+    <div id="settings" style="display: flex">
+        <div>
+            <p>横個数 : <span class="current-value"></span></p>
+            <input type="range" class="slider" id="slider--width" min="1" max="30" step="1" value="12">
+        </div>
+        <div>
+            <p>縦個数 : <span class="current-value"></span></p>
+            <input type="range" class="slider" id="slider--height" min="1" max="30" step="1" value="22">
+        </div>
+        <div>
+            <p>回転量 : <span class="current-value"></span></p>
+            <input type="range" class="slider" id="slider--rotate" min="0" max="1" step="0.01" value="0.2">
+        </div>
+        <div>
+            <p>移動量 : <span class="current-value"></span></p>
+            <input type="range" class="slider" id="slider--translate" min="0" max="1" step="0.01" value="0.04">
+        </div>
+    </div>
+    <div>
+        <canvas id="canvas" width="1000" height="1000"></canvas>
+    </div>
+    <script type="text/javascript">
+        const setCurrentValue = (slider) => {
+            const currentValueElem = slider.parentNode.getElementsByClassName("current-value")[0];
+            currentValueElem.innerText = slider.value;
+        }
+
+        const drawRect = (ctx, x, y, translateValue, rotateValue) => {
+            ctx.save();
+            ctx.translate(x + (Math.random() * 2 - 1) * translateValue, y + (Math.random() * 2 - 1) * translateValue);
+            ctx.translate(10, 10);
+            ctx.rotate((Math.PI / 180) * (Math.random() * 2 - 1) * rotateValue);
+            ctx.translate(-10, -10);
+            ctx.strokeRect(0,0,20,20);
+            ctx.restore();
+        }
+
+        const drawCanvas = () => {
+            const w = parseInt(document.getElementById("slider--width").value);
+            const h = parseInt(document.getElementById("slider--height").value);
+            const r = parseFloat(document.getElementById("slider--rotate").value);
+            const t = parseFloat(document.getElementById("slider--translate").value);
+
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            let translateValue = 0;
+            let rotateValue = 0;
+
+            for (let i = 0; i < h; i++) {
+                const y = 200 + i * 20;
+                for (let j = 0; j < w; j++) {
+                    const x = 200 + j * 20;
+                    drawRect(ctx, x, y, translateValue, rotateValue);
+                    translateValue += t;
+                    rotateValue += r;
+                }
+            }
+        }
+
+        const rangeOnChange = (e) =>{
+            setCurrentValue(e.target);
+            drawCanvas();
+        }
+
+        window.onload = () => {
+            const settings = document.getElementById("settings").children;
+            for (const elem of settings) {
+                const sliderElem = elem.getElementsByClassName("slider")[0];
+                sliderElem.addEventListener("input", rangeOnChange);
+                setCurrentValue(sliderElem);
+            }
+            drawCanvas();
+        }
+    </script>
+  </body>
+</html>
